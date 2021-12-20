@@ -1,20 +1,48 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import  React, { useRef } from 'react';
+import {StatusBar, Animated } from 'react-native';
+import styled from 'styled-components/native';
+
+import RenderItem from './components/RenderItem';
+import Backdrop from "./components/Backdrop";
+import Square from './components/Square';
+import IndicatorDotz from "./components/IndicatorDotz";
+
+import { DATA } from './constants';
+
+const AppContainer = styled.View`
+  flex: 1;
+  background-color: #ffffff;
+  align-items: center;
+  justify-content: center;
+`;
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+    const scrollX = useRef(new Animated.Value(0)).current;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    return (
+      <AppContainer>
+        <StatusBar hidden />
+          <Backdrop scrollX={scrollX} />
+          <Square scrollX={scrollX} />
+          <Animated.FlatList
+              pagingEnabled
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={DATA}
+              scrollEventThrottle={32}
+              onScroll={
+                  Animated.event(
+                      [{ nativeEvent: { contentOffset: { x: scrollX }}}],
+                      {useNativeDriver: false}
+                  )
+              }
+              keyExtractor={item => item.key}
+              renderItem={RenderItem}
+              contentContainerStyle={{
+                  paddingBottom: 100,
+              }}
+          />
+          <IndicatorDotz scrollX={scrollX} />
+      </AppContainer>
+      );
+}
